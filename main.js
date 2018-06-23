@@ -26,8 +26,12 @@ async function autoShare(init) {
         path: path.resolve(config.path, filename),
         caption: path.basename(filename, path.extname(filename))
       }))
+      .map(image =>
+        Object.assign({ number: parseInt(image.caption, 10) }, image)
+      )
+      .filter(image => isFinite(image.number))
       .sort((a, b) => {
-        return parseInt(a.caption, 10) - parseInt(b.caption, 10);
+        return a.number - b.number;
       });
 
     if (images.length === 0) return setTimeout(autoShare, delay);
