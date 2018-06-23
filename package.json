@@ -1,0 +1,24 @@
+{
+  "name": "instabot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "dependencies": {
+    "selenium-webdriver": "^3.6.0"
+  },
+  "devDependencies": {
+    "prettier": "^1.13.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write *.js lib/**/*.js *.json",
+    "install-mac": "rm -f tmp/chromedriver_mac64.zip && wget http://chromedriver.storage.googleapis.com/2.40/chromedriver_mac64.zip -P tmp && unzip -o tmp/chromedriver_mac64.zip -d bin && npm install && npm install forever -g",
+    "update": "git pull && rm -f package-lock.json && npm install",
+    "start": "forever start main.js",
+    "restart": "forever restart main.js",
+    "stop": "forever stop main.js",
+    "logs": "forever logs main.js"
+  },
+  "author": "Morris Brodersen <mb@morrisbrodersen.de>",
+  "license": "ISC"
+}
