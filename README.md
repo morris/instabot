@@ -1,6 +1,6 @@
 # INSTABOT
 
-- `npm run install-mac`
+- `npm install`
 - derive `config.json` from `config.example.json`
 - place images in `config.path` (must be numbered e.g. `1.jpg`, `2.jpg`, ...)
 - `npm run start` to start (forever)

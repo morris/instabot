@@ -1,23 +1,21 @@
 const path = require("path");
 const fs = require("fs");
 const util = require("util");
+const Instagram = require("instagram-web-api");
 
-process.env.PATH =
-  process.env.PATH + path.delimiter + path.resolve(process.cwd(), "bin");
+autoPost(true);
 
-const { Builder } = require("selenium-webdriver");
-
-const login = require("./lib/login");
-const post = require("./lib/post");
-
-autoShare(true);
-
-async function autoShare(init) {
+async function autoPost(init) {
   try {
     const config = JSON.parse(await util.promisify(fs.readFile)("config.json"));
     const delay = (config.interval + Math.random() * config.deviation) * 60000;
+    const client = new Instagram({
+      username: config.username,
+      password: config.password
+    });
+    await client.login();
 
-    if (init) return setTimeout(autoShare, delay);
+    if (init) return setTimeout(autoPost, delay);
 
     const images = (await util.promisify(fs.readdir)(config.path))
       .filter(filename => filename.match(/\.jpe?g$/i))
@@ -34,42 +32,16 @@ async function autoShare(init) {
         return a.number - b.number;
       });
 
-    if (images.length === 0) return setTimeout(autoShare, delay);
+    if (images.length === 0) return setTimeout(autoPost, delay);
 
     const image = images[0];
 
     console.log("posting " + image.filename + "...");
 
-    const driver = new Builder()
-      .forBrowser("chrome")
-      .withCapabilities({
-        browserName: "chrome",
-        chromeOptions: {
-          mobileEmulation: {
-            deviceName: "iPhone X"
-          }
-        }
-      })
-      .build();
-
-    try {
-      await login({
-        driver: driver,
-        username: config.username,
-        password: config.password
-      });
-
-      await post({
-        driver: driver,
-        path: image.path,
-        caption: image.caption
-      });
-
-      await driver.close();
-    } catch (ex) {
-      await driver.close();
-      throw ex;
-    }
+    await client.uploadPhoto({
+      photo: image.path,
+      caption: image.caption
+    });
 
     await util.promisify(fs.rename)(
       image.path,
@@ -78,7 +50,7 @@ async function autoShare(init) {
 
     console.log("done");
 
-    setTimeout(autoShare, delay);
+    setTimeout(autoPost, delay);
   } catch (ex) {
     console.error(ex.stack);
     return process.exit(1);
